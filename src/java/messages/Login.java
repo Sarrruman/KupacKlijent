@@ -2,29 +2,31 @@ package messages;
 
 import java.io.Serializable;
 
-public class Login implements Serializable{
+public class Login implements Serializable {
 
-     private String username, password;
+    static final long serialVersionUID = 42L;
 
-     public Login(String username, String password) {
-          this.username = username;
-          this.password = password;
-     }
+    private String username, password;
 
-     public String getUsername() {
-          return username;
-     }
+    public Login(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
-     public void setUsername(String username) {
-          this.username = username;
-     }
+    public String getUsername() {
+        return username;
+    }
 
-     public String getPassword() {
-          return password;
-     }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-     public void setPassword(String password) {
-          this.password = password;
-     }
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
 }
