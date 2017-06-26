@@ -1,6 +1,6 @@
 package kupac;
 
-import frames.AdminPanel;
+import frames.LoginPanel;
 import javax.annotation.Resource;
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -14,12 +14,14 @@ public class Kupac {
     public static Topic odgovori;
     @Resource(lookup = "jms/__defaultConnectionFactory")
     public static ConnectionFactory connectionFactory;
+    
+    public static beans.Kupac kupac;
 
     public static void main(String[] args) {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AdminPanel().setVisible(true);
+                new LoginPanel().setVisible(true);
             }
         });
 
