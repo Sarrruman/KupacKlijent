@@ -5,6 +5,7 @@
  */
 package frames;
 
+import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.ConnectionFactory;
@@ -167,9 +168,14 @@ public class LoginPanel extends javax.swing.JFrame {
          Message odgovor = consumer.receive();
          if (odgovor instanceof ObjectMessage) {
              try {
-                 if (((TextMessage) odgovor).getText().equals("ok")) {
+                 Object objekat = ((ObjectMessage) odgovor).getObject();
+                 if (objekat != null) {
                      jLabel3.setText("Success");
+                     kupac.Kupac.kupac = (beans.Kupac) objekat;
 
+                     // close this window and open new home panel
+                     this.setVisible(false);
+                     new HomePanel().setVisible(true);
                  } else {
                      jLabel3.setText("Error");
                  }

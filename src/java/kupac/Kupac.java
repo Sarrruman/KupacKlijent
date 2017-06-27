@@ -14,7 +14,7 @@ public class Kupac {
     public static Topic odgovori;
     @Resource(lookup = "jms/__defaultConnectionFactory")
     public static ConnectionFactory connectionFactory;
-    
+
     public static beans.Kupac kupac;
 
     public static void main(String[] args) {
