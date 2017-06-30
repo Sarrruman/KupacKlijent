@@ -9,6 +9,7 @@ import java.util.List;
 import beans.*;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -35,7 +36,13 @@ import utils.TipZahteva;
 public class HomePanel extends javax.swing.JFrame {
 
     public void refresh() {
-        new HomePanel().setVisible(true);
+        if (!this.isVisible()) {
+            this.setVisible(true);
+        }
+        HomePanel np = new HomePanel();
+        Point point = this.getLocationOnScreen();
+        np.setLocation((int) point.getX(), (int) point.getY());
+        np.setVisible(true);
         this.dispose();
     }
 
@@ -77,6 +84,9 @@ public class HomePanel extends javax.swing.JFrame {
 
             this.add(gp);
         }
+        JMSContext context = kupac.Kupac.connectionFactory.createContext();
+        JMSConsumer consumer = context.createConsumer(kupac.Kupac.obavestenjaSobe);
+        consumer.setMessageListener(new SobeListener(this));
     }
 
     /**
@@ -89,7 +99,6 @@ public class HomePanel extends javax.swing.JFrame {
     private void initComponents() {
 
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
-        jPanel1 = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -103,17 +112,6 @@ public class HomePanel extends javax.swing.JFrame {
                 closingHandler(evt);
             }
         });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 904, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 618, Short.MAX_VALUE)
-        );
 
         jMenu2.setText("Akcije");
 
@@ -133,15 +131,11 @@ public class HomePanel extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 25, Short.MAX_VALUE))
+            .addGap(0, 929, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 36, Short.MAX_VALUE))
+            .addGap(0, 654, Short.MAX_VALUE)
         );
 
         pack();
@@ -149,6 +143,7 @@ public class HomePanel extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         new PromenaKorisnickihPodataka().setVisible(true);
+        this.setVisible(false);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void closingHandler(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closingHandler
@@ -195,10 +190,9 @@ public class HomePanel extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 
-    private void dohvatiSobe() {
+    public void dohvatiSobe() {
         JMSContext context = kupac.Kupac.connectionFactory.createContext();
 
         Destination destination = kupac.Kupac.zahtevi;

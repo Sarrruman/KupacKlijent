@@ -2,9 +2,11 @@ package frames;
 
 import beans.Rezervacija;
 import beans.Soba;
+import com.oracle.webservices.api.message.MessageContext;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -38,7 +40,14 @@ import utils.TipZahteva;
 public class Rezervacije extends javax.swing.JFrame {
 
     public void refresh() {
-        new Rezervacije(this.soba, this.status.getText()).setVisible(true);
+        if (!this.isVisible()) {
+            this.setVisible(true);
+        }
+        Rezervacije np = new Rezervacije(this.soba, this.status.getText());
+        np.setVisible(true);
+        Point point = this.getLocationOnScreen();
+        np.setLocation((int) point.getX(), (int) point.getY());
+        np.setVisible(true);
         this.dispose();
     }
 
@@ -166,6 +175,10 @@ public class Rezervacije extends javax.swing.JFrame {
                 return this;
             }
         }.init(this, soba, datumOd, datumDo));
+
+        JMSContext context = kupac.Kupac.connectionFactory.createContext();
+        JMSConsumer consumer = context.createConsumer(kupac.Kupac.obavestenja);
+        consumer.setMessageListener(new RezervacijeListener(this));
     }
 
     @SuppressWarnings("unchecked")

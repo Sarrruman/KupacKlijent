@@ -17,6 +17,10 @@ public class Kupac {
     public static Topic odgovori;
     @Resource(lookup = "jms/__defaultConnectionFactory")
     public static ConnectionFactory connectionFactory;
+    @Resource(lookup = "Obavestenja")
+    public static Topic obavestenja;
+    @Resource(lookup = "ObavestenjaSobe")
+    public static Topic obavestenjaSobe;
 
     public static beans.Kupac kupac;
 
