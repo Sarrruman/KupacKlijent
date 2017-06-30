@@ -175,7 +175,8 @@ public class LoginPanel extends javax.swing.JFrame {
 
                      // close this window and open new home panel
                      this.setVisible(false);
-                     new HomePanel().setVisible(true);
+                     kupac.Kupac.homePanel = new HomePanel();
+                     kupac.Kupac.homePanel.setVisible(true);
                  } else {
                      jLabel3.setText("Error");
                  }

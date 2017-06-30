@@ -5,17 +5,78 @@
  */
 package frames;
 
+import java.util.List;
+import beans.*;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.jms.Destination;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import javax.jms.JMSProducer;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import messages.Login;
+import messages.SobeMessage;
+import utils.Helpers;
+import utils.TipZahteva;
+
 /**
  *
  * @author malenicn
  */
 public class HomePanel extends javax.swing.JFrame {
 
+    public void refresh() {
+        new HomePanel().setVisible(true);
+        this.dispose();
+    }
+
+    private List<Soba> sobe;
+
     /**
      * Creates new form HomePanel
      */
     public HomePanel() {
         initComponents();
+
+        dohvatiSobe();
+
+        this.setLayout(new GridLayout(sobe.size(), 1));
+        for (int i = 0; i < sobe.size(); i++) {
+            JButton glavno = new JButton(sobe.get(i).getApartman().getIme() + "(" + sobe.get(i).getRedBr() + ")");
+
+            // paneli za resizing
+            JPanel gp = new JPanel();
+            gp.add(glavno);
+
+            glavno.setPreferredSize(new Dimension(200, 40));
+
+            glavno.addActionListener(new ActionListener() {
+                private Soba s;
+                private HomePanel panel;
+
+                public void actionPerformed(ActionEvent e) {
+                    new Rezervacije(s, "").setVisible(true);
+                    panel.setVisible(false);
+                }
+
+                private ActionListener init(Soba s, HomePanel panel) {
+                    this.s = s;
+                    this.panel = panel;
+                    return this;
+                }
+            }.init(sobe.get(i), this));
+
+            this.add(gp);
+        }
     }
 
     /**
@@ -37,16 +98,21 @@ public class HomePanel extends javax.swing.JFrame {
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                closingHandler(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 929, Short.MAX_VALUE)
+            .addGap(0, 904, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 654, Short.MAX_VALUE)
+            .addGap(0, 618, Short.MAX_VALUE)
         );
 
         jMenu2.setText("Akcije");
@@ -67,11 +133,15 @@ public class HomePanel extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 36, Short.MAX_VALUE))
         );
 
         pack();
@@ -80,6 +150,10 @@ public class HomePanel extends javax.swing.JFrame {
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         new PromenaKorisnickihPodataka().setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void closingHandler(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closingHandler
+        this.dispose();
+    }//GEN-LAST:event_closingHandler
 
     /**
      * @param args the command line arguments
@@ -123,4 +197,45 @@ public class HomePanel extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
+
+    private void dohvatiSobe() {
+        JMSContext context = kupac.Kupac.connectionFactory.createContext();
+
+        Destination destination = kupac.Kupac.zahtevi;
+        String username = kupac.Kupac.kupac.getUsername();
+        String password = kupac.Kupac.kupac.getPassword();
+
+        JMSConsumer consumer = context.createConsumer(kupac.Kupac.odgovori, Helpers.getId(username, password));
+        JMSProducer producer = context.createProducer();
+
+        Login login = new Login(username, password);
+        ObjectMessage zahtev = context.createObjectMessage();
+        try {
+            zahtev.setStringProperty("id", username + password);
+
+            zahtev.setObject("");
+            zahtev.setIntProperty("tip", TipZahteva.DOHVATANJE_SVIH_SOBA.ordinal());
+
+            producer.send(destination, zahtev);
+        } catch (JMSException ex) {
+            Logger.getLogger(LoginPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        Message odgovor = consumer.receive();
+        if (odgovor instanceof ObjectMessage) {
+            try {
+                Object objekat = ((ObjectMessage) odgovor).getObject();
+                if (objekat != null) {
+
+                    this.sobe = ((SobeMessage) objekat).getSobe();
+                } else {
+                    // this.sobe = new ArrayList<>();
+                }
+            } catch (JMSException ex) {
+                Logger.getLogger(HomePanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+        }
+
+    }
 }

@@ -1,5 +1,6 @@
 package kupac;
 
+import frames.HomePanel;
 import frames.LoginPanel;
 import javax.annotation.Resource;
 import javax.jms.ConnectionFactory;
@@ -7,6 +8,8 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 
 public class Kupac {
+
+    public static HomePanel homePanel;
 
     @Resource(lookup = "Zahtevi")
     public static Queue zahtevi;
